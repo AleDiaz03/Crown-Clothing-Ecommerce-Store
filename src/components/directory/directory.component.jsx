@@ -1,7 +1,7 @@
 import './directory.styles.scss'
 import CategoryItem from '../category-item/category-item.component'
 
-const CategoryList = () => {
+const Directory = () => {
     const categories = [
         {
           "id": 1,
@@ -42,4 +42,4 @@ const CategoryList = () => {
       )
 }
 
-export default CategoryList
+export default Directory
