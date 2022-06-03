@@ -1,9 +1,9 @@
 import { initializeApp } from 'firebase/app'
 // Import authentication tools
 import {getAuth, 
-        signInWithRedirect,
         signInWithPopup,
-        GoogleAuthProvider
+        GoogleAuthProvider,
+        createUserWithEmailAndPassword
         } from 'firebase/auth'
 
 import {
@@ -39,11 +39,10 @@ provider.setCustomParameters({
 export const auth = getAuth()
 export const signInWithGooglePopup = () => signInWithPopup(auth, provider)
 
-
 // db for database, allows us to access database
 export const db = getFirestore()
 
-export const createUserDocumentFromAuth = async (userAuth) => {
+export const createUserDocumentFromAuth = async (userAuth, additionalInfo) => {
     // Check if user already in db
     // In other words check if user has a document
 
@@ -62,7 +61,8 @@ export const createUserDocumentFromAuth = async (userAuth) => {
                 await setDoc(userDocRef, {
                     displayName,
                     email,
-                    createdAt
+                    createdAt,
+                    ...additionalInfo
                 })
         }catch(error){
                 console.log( "hola")
@@ -70,4 +70,14 @@ export const createUserDocumentFromAuth = async (userAuth) => {
     }   
 
     return userDocRef
+}
+
+export const createAuthUserWithEmailAndPassword = async (email, password) => {
+    
+    if (!email || !password){
+        return;
+    }
+    
+    return await createUserWithEmailAndPassword(auth, email, password)
+
 }
