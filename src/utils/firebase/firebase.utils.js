@@ -4,7 +4,9 @@ import {getAuth,
         signInWithPopup,
         GoogleAuthProvider,
         createUserWithEmailAndPassword,
-        signInWithEmailAndPassword
+        signInWithEmailAndPassword,
+        signOut,
+        onAuthStateChanged
         } from 'firebase/auth'
 
 import {
@@ -91,4 +93,20 @@ export const signInAuthUserWithEmailAndPassword = async (email, password) => {
     
     return await signInWithEmailAndPassword(auth, email, password)
 
+}
+
+export const signOutUser = async () => {
+    try {
+        await signOut(auth)
+    }catch (error){
+        console.log(error)
+    }
+}
+
+
+export const onAuthStateChangedListener = (callback) => {
+    // This function will run the callback passed in whenever there is
+    // a change in the auth state. 
+    // Signing in triggers a change in auth, signing out too...
+    return onAuthStateChanged(auth, callback)
 }
