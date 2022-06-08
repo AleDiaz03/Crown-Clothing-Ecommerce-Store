@@ -12,7 +12,7 @@ function App() {
     <Routes>
       <Route path='/' element ={<NavBar />}>
         <Route index element = {<Home />}></Route>
-        <Route path='shop' element= {<Shop />}></Route>
+        <Route path='shop/*' element= {<Shop />}></Route>
         <Route path='auth' element= {<Authentication />}></Route>
         <Route path='checkout' element={<Checkout />}></Route>
       </Route>
@@ -21,6 +21,9 @@ function App() {
 }
 
 export default App;
+
+/* shop/* the /* means that we know there might be another subsequent
+route but whatever it as long as it is shop/ then render shop */
 
 /* <Route path='/' element = {<Home />}></Route>
 Lets break this down. Here we are saying that if the path (url) is 
