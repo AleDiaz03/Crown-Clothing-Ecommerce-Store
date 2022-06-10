@@ -1,5 +1,5 @@
-import { createContext, useState, useEffect } from "react";
-
+import { createContext, useReducer } from "react";
+import { createAction } from '../utils/reducer/reducer.utils'
 
 const addItem = (cartItems, productToAdd) => {
     
@@ -45,38 +45,77 @@ export const CartContext = createContext  ({
     setTotalPrice: () => (null)
 })
 
-export const CartProvider = ({ children }) => {
-    const [showing, setShowing] = useState(false)
-    const [cartItems, setCartItems] = useState([])
-    const [totalItems, setTotalItems] = useState(0)
-    const [totalPrice, setTotalPrice] = useState(0)
-    
-    useEffect(() => {
-        // reduce will do the same as instantiating a variable total and looping through array updating total. Takes two arguments
-        // Function that takes the name of the variable and a name for each array element (like i in a for loop)
-        // Second argument is the initial value of total
-        const newTotalItems = cartItems.reduce((total, cartItem) => total + cartItem.quantity, 0)
-        setTotalItems(newTotalItems)
-    }, [cartItems])
 
-    useEffect(() => {
-        const newTotalPrice = cartItems.reduce((total, cartItem) => total + (cartItem.quantity * cartItem.price), 0)
-        setTotalPrice(newTotalPrice)
-    })
+
+
+export const CART_ACTION_TYPES = {
+    SET_CART_ITEMS: 'SET_CART_ITEMS',
+    SET_IS_SHOWING: 'SET_IS_SHOWING'
+}
+
+const INITIAL_STATE = {
+    totalItems: 0,
+    totalPrice: 0,
+    cartItems: [],
+    showing: false
+}
+
+ const cartReducer = (state, action) => {
+     const {type, payload} = action
+     switch(type){
+         case 'SET_CART_ITEMS':
+             return ({
+                 ...state,
+                 ...payload
+             })
+         case 'SET_IS_SHOWING':
+             return ({
+                 ...state,
+                 showing: payload
+             })
+         default: 
+             throw new Error(`unhandled type of ${type} in cartReducer`)
+     }
+ }
+
+
+
+
+export const CartProvider = ({ children }) => {
+    const [{cartItems, showing, totalItems, totalPrice}, dispatch] = useReducer(cartReducer, INITIAL_STATE)
+
+    const updateCartItemsReducer = (newCartItems) => {
+        const newTotalPrice = newCartItems.reduce((total, cartItem) => total + (cartItem.quantity * cartItem.price), 0)
+        const newTotalItems = newCartItems.reduce((total, cartItem) => total + cartItem.quantity, 0)
+        dispatch(createAction(CART_ACTION_TYPES.SET_CART_ITEMS, {
+            cartItems: newCartItems, 
+            totalPrice: newTotalPrice, 
+            totalItems: newTotalItems
+        }))
+
+    }
+
+    const setShowing = (bool) => {
+      dispatch(createAction(CART_ACTION_TYPES.SET_IS_SHOWING, bool))
+    }
 
     const addItemToCart = (productToAdd) => {
-        setCartItems(addItem(cartItems, productToAdd))
+        const newCartItems = addItem(cartItems, productToAdd)
+        updateCartItemsReducer(newCartItems)
     }
 
     const removeItemFromCart = (productToRemove) => {
-        setCartItems(removeItem(cartItems, productToRemove))
+        const newCartItems = removeItem(cartItems, productToRemove)
+        updateCartItemsReducer(newCartItems)
     }
 
     const deleteItemFromCart = (productToDelete) => {
-        setCartItems(deleteItem(cartItems, productToDelete))
+        const newCartItems = deleteItem(cartItems, productToDelete)
+        updateCartItemsReducer(newCartItems)
     }   
 
-    const value = {showing, setShowing, cartItems, setCartItems, addItemToCart, totalItems, setTotalItems, removeItemFromCart, deleteItemFromCart, totalPrice}
+    const value = {showing, setShowing, cartItems, addItemToCart, totalItems, removeItemFromCart, deleteItemFromCart, totalPrice}
+    //
 
     return (
         <CartContext.Provider value={value}>
